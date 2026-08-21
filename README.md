@@ -38,8 +38,33 @@ mvn test
 ```text
 src/main/java/com/shipmentorchestrator/api
 |-- ShipmentOrchestratorApiApplication.java
-`-- web/HealthController.java
+|-- web/HealthController.java
+`-- shipment
+	|-- api
+	|   |-- CreateShipmentRequest.java
+	|   |-- ShipmentController.java
+	|   |-- ShipmentExceptionHandler.java
+	|   `-- ShipmentResponse.java
+	|-- application
+	|   |-- CreateShipmentCommand.java
+	|   |-- ShipmentMapper.java
+	|   |-- ShipmentNotFoundException.java
+	|   |-- ShipmentOutput.java
+	|   `-- ShipmentService.java
+	|-- domain
+	|   |-- Shipment.java
+	|   |-- ShipmentRepository.java
+	|   `-- ShipmentStatus.java
+	`-- infrastructure
+		|-- ShipmentDocument.java
+		|-- ShipmentMongoRepository.java
+		|-- ShipmentPersistenceMapper.java
+		`-- ShipmentRepositoryAdapter.java
 src/main/resources/application.yml
 src/test/java/com/shipmentorchestrator/api
 `-- ShipmentOrchestratorApiApplicationTests.java
 ```
+
+O dominio nao depende de MongoDB. A infraestrutura concentra o documento Mongo,
+o repositorio Spring Data e o adaptador de persistencia. Esta e uma organizacao
+DDD simplificada, sem introduzir uma arquitetura hexagonal completa.

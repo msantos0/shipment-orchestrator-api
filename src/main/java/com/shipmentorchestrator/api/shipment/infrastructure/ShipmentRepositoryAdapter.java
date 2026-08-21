@@ -15,19 +15,24 @@ import lombok.RequiredArgsConstructor;
 public class ShipmentRepositoryAdapter implements ShipmentRepository {
 
     private final ShipmentMongoRepository shipmentMongoRepository;
+    private final ShipmentPersistenceMapper shipmentPersistenceMapper;
 
     @Override
     public Shipment save(Shipment shipment) {
-        return shipmentMongoRepository.save(shipment);
+        ShipmentDocument document = shipmentPersistenceMapper.toDocument(shipment);
+        return shipmentPersistenceMapper.toDomain(shipmentMongoRepository.save(document));
     }
 
     @Override
     public List<Shipment> findAll() {
-        return shipmentMongoRepository.findAll();
+        return shipmentMongoRepository.findAll().stream()
+            .map(shipmentPersistenceMapper::toDomain)
+            .toList();
     }
 
     @Override
     public Optional<Shipment> findById(String id) {
-        return shipmentMongoRepository.findById(id);
+        return shipmentMongoRepository.findById(id)
+            .map(shipmentPersistenceMapper::toDomain);
     }
 }
