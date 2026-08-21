@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: shipment-orchestrator-api
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/shipment_orchestrator}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+server:
+  shutdown: graceful
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
