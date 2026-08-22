@@ -22,9 +22,11 @@ A URI do MongoDB pode ser alterada pela variavel de ambiente `MONGODB_URI`. O va
 
 - `GET /api/v1/health`: verifica a disponibilidade da API.
 - `GET /actuator/health`: health check do Spring Boot Actuator.
-- `POST /api/v1/shipments`: cria uma remessa com `origin` e `destination`.
-- `GET /api/v1/shipments`: lista as remessas.
+- `POST /api/v1/shipments`: cria uma remessa com `origin`, `destination` e `trackingCode`.
+- `GET /api/v1/shipments`: lista as remessas com `page`, `size`, `status` e `trackingCode` opcionais.
 - `GET /api/v1/shipments/{id}`: consulta uma remessa pelo ID.
+- `PUT /api/v1/shipments/{id}`: atualiza uma remessa.
+- `DELETE /api/v1/shipments/{id}`: remove uma remessa.
 - `GET /swagger-ui.html`: abre a documentacao interativa da API.
 
 ## Testar
@@ -44,13 +46,16 @@ src/main/java/com/shipmentorchestrator/api
 	|   |-- CreateShipmentRequest.java
 	|   |-- ShipmentController.java
 	|   |-- ShipmentExceptionHandler.java
-	|   `-- ShipmentResponse.java
+	|   |-- ShipmentPageResponse.java
+	|   |-- ShipmentResponse.java
+	|   `-- UpdateShipmentRequest.java
 	|-- application
 	|   |-- CreateShipmentCommand.java
 	|   |-- ShipmentMapper.java
 	|   |-- ShipmentNotFoundException.java
 	|   |-- ShipmentOutput.java
-	|   `-- ShipmentService.java
+	|   |-- ShipmentService.java
+	|   `-- UpdateShipmentCommand.java
 	|-- domain
 	|   |-- Shipment.java
 	|   |-- ShipmentRepository.java

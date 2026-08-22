@@ -9,6 +9,7 @@ public record ShipmentResponse(
         String id,
         String origin,
         String destination,
+        String trackingCode,
         ShipmentStatus status,
         Instant createdAt) {
 
@@ -17,6 +18,7 @@ public record ShipmentResponse(
                 output.id(),
                 output.origin(),
                 output.destination(),
+                output.trackingCode(),
                 output.status(),
                 output.createdAt());
     }

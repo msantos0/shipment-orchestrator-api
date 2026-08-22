@@ -1,14 +1,10 @@
 package com.shipmentorchestrator.api.shipment.application;
 
-import java.time.Instant;
-
 import com.shipmentorchestrator.api.shipment.domain.ShipmentStatus;
 
-public record ShipmentOutput(
-        String id,
+public record UpdateShipmentCommand(
         String origin,
         String destination,
         String trackingCode,
-        ShipmentStatus status,
-        Instant createdAt) {
+        ShipmentStatus status) {
 }

@@ -23,6 +23,7 @@ public class ShipmentDocument {
     private String id;
     private String origin;
     private String destination;
+    private String trackingCode;
     private ShipmentStatus status;
     private Instant createdAt;
 }
