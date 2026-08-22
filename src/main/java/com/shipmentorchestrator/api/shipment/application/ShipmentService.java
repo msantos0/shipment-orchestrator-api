@@ -30,7 +30,34 @@ public class ShipmentService {
     public ShipmentOutput update(String id, UpdateShipmentCommand command) {
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ShipmentNotFoundException(id));
-        shipment.update(command.origin(), command.destination(), command.trackingCode(), command.status());
+        shipment.update(command.origin(), command.destination(), command.trackingCode());
+        return shipmentMapper.toOutput(shipmentRepository.save(shipment));
+    }
+
+    public ShipmentOutput plan(String id) {
+        return transition(id, Shipment::plan);
+    }
+
+    public ShipmentOutput pickup(String id) {
+        return transition(id, Shipment::pickup);
+    }
+
+    public ShipmentOutput startTransit(String id) {
+        return transition(id, Shipment::startTransit);
+    }
+
+    public ShipmentOutput deliver(String id) {
+        return transition(id, Shipment::deliver);
+    }
+
+    public ShipmentOutput cancel(String id) {
+        return transition(id, Shipment::cancel);
+    }
+
+    private ShipmentOutput transition(String id, java.util.function.Consumer<Shipment> action) {
+        Shipment shipment = shipmentRepository.findById(id)
+                .orElseThrow(() -> new ShipmentNotFoundException(id));
+        action.accept(shipment);
         return shipmentMapper.toOutput(shipmentRepository.save(shipment));
     }
 
