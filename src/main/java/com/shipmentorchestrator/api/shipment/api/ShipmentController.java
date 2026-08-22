@@ -72,6 +72,36 @@ public class ShipmentController {
         return ShipmentResponse.from(shipmentService.update(id, request.toCommand()));
     }
 
+    @PostMapping("/{id}/plan")
+    @Operation(summary = "Plan a shipment")
+    public ShipmentResponse plan(@PathVariable String id) {
+        return ShipmentResponse.from(shipmentService.plan(id));
+    }
+
+    @PostMapping("/{id}/pickup")
+    @Operation(summary = "Pick up a shipment")
+    public ShipmentResponse pickup(@PathVariable String id) {
+        return ShipmentResponse.from(shipmentService.pickup(id));
+    }
+
+    @PostMapping("/{id}/start-transit")
+    @Operation(summary = "Start shipment transit")
+    public ShipmentResponse startTransit(@PathVariable String id) {
+        return ShipmentResponse.from(shipmentService.startTransit(id));
+    }
+
+    @PostMapping("/{id}/deliver")
+    @Operation(summary = "Deliver a shipment")
+    public ShipmentResponse deliver(@PathVariable String id) {
+        return ShipmentResponse.from(shipmentService.deliver(id));
+    }
+
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancel a shipment")
+    public ShipmentResponse cancel(@PathVariable String id) {
+        return ShipmentResponse.from(shipmentService.cancel(id));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a shipment")
     @ResponseStatus(HttpStatus.NO_CONTENT)
