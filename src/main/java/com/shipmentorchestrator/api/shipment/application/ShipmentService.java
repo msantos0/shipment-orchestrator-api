@@ -36,52 +36,58 @@ public class ShipmentService {
                 .map(shipmentMapper::toOutput);
     }
 
-    public ShipmentOutput update(String id, UpdateShipmentCommand command) {
-        Shipment shipment = shipmentRepository.findById(id)
-                .orElseThrow(() -> new ShipmentNotFoundException(id));
-        ShipmentStatus previousStatus = shipment.getStatus();
-        shipment.update(command.origin(), command.destination(), command.trackingCode(), command.status());
-        Shipment savedShipment = shipmentRepository.save(shipment);
-        if (previousStatus != command.status()) {
-            trackingEventRepository.save(TrackingEvent.create(
-                savedShipment.getId(), savedShipment.getStatus(), null, null));
-        }
-        return shipmentMapper.toOutput(savedShipment);
-    }
+   public ShipmentOutput update(String id, UpdateShipmentCommand command) {
+    Shipment shipment = shipmentRepository.findById(id)
+            .orElseThrow(() -> new ShipmentNotFoundException(id));
 
-    public ShipmentOutput plan(String id) {
-        return transition(id, ShipmentStatus.PLANNED);
-    }
+    shipment.update(
+            command.origin(),
+            command.destination(),
+            command.trackingCode());
 
-    public ShipmentOutput pickup(String id) {
-        return transition(id, ShipmentStatus.PICKED_UP);
-    }
+    return shipmentMapper.toOutput(shipmentRepository.save(shipment));
+}
 
-    public ShipmentOutput startTransit(String id) {
-        return transition(id, ShipmentStatus.IN_TRANSIT);
-    }
+public ShipmentOutput plan(String id) {
+    return transition(id, Shipment::plan);
+}
 
-    public ShipmentOutput deliver(String id) {
-        return transition(id, ShipmentStatus.DELIVERED);
-    }
+public ShipmentOutput pickup(String id) {
+    return transition(id, Shipment::pickup);
+}
 
-    public ShipmentOutput cancel(String id) {
-        return transition(id, ShipmentStatus.CANCELLED);
-    }
+public ShipmentOutput startTransit(String id) {
+    return transition(id, Shipment::startTransit);
+}
 
-    private ShipmentOutput transition(String id, ShipmentStatus targetStatus) {
-        Shipment shipment = shipmentRepository.findById(id)
-                .orElseThrow(() -> new ShipmentNotFoundException(id));
-        ShipmentStatus previousStatus = shipment.getStatus();
-        shipment.update(
-                shipment.getOrigin(), shipment.getDestination(), shipment.getTrackingCode(), targetStatus);
-        Shipment savedShipment = shipmentRepository.save(shipment);
-        if (previousStatus != targetStatus) {
-            trackingEventRepository.save(TrackingEvent.create(
-                    savedShipment.getId(), savedShipment.getStatus(), null, null));
-        }
-        return shipmentMapper.toOutput(savedShipment);
-    }
+public ShipmentOutput deliver(String id) {
+    return transition(id, Shipment::deliver);
+}
+
+public ShipmentOutput cancel(String id) {
+    return transition(id, Shipment::cancel);
+}
+
+private ShipmentOutput transition(
+        String id,
+        java.util.function.Consumer<Shipment> action) {
+
+    Shipment shipment = shipmentRepository.findById(id)
+            .orElseThrow(() -> new ShipmentNotFoundException(id));
+
+    action.accept(shipment);
+
+    Shipment savedShipment = shipmentRepository.save(shipment);
+
+    trackingEventRepository.save(
+            TrackingEvent.create(
+                    savedShipment.getId(),
+                    savedShipment.getStatus(),
+                    null,
+                    null));
+
+    return shipmentMapper.toOutput(savedShipment);
+}
 
     public void delete(String id) {
         shipmentRepository.findById(id)
