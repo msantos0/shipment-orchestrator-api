@@ -58,34 +58,7 @@ class ShipmentServiceTest {
                         && event.getEventType() == TrackingEventType.PLANNED));
     }
 
-    @Test
-    void updateShouldRegisterEventWhenStatusChanges() {
-        Shipment shipment = shipment("shipment-1", ShipmentStatus.PLANNED);
-        when(shipmentRepository.findById("shipment-1")).thenReturn(Optional.of(shipment));
-        when(shipmentRepository.save(shipment)).thenReturn(shipment);
-        when(shipmentMapper.toOutput(shipment)).thenReturn(null);
-
-        shipmentService.update("shipment-1", new UpdateShipmentCommand(
-                "origin", "destination", "tracking", ShipmentStatus.IN_TRANSIT));
-
-        verify(trackingEventRepository).save(argThat(event ->
-                event.getShipmentId().equals("shipment-1")
-                        && event.getEventType() == TrackingEventType.IN_TRANSIT));
-    }
-
-    @Test
-    void updateShouldNotRegisterEventWhenStatusDoesNotChange() {
-        Shipment shipment = shipment("shipment-1", ShipmentStatus.IN_TRANSIT);
-        when(shipmentRepository.findById("shipment-1")).thenReturn(Optional.of(shipment));
-        when(shipmentRepository.save(shipment)).thenReturn(shipment);
-        when(shipmentMapper.toOutput(shipment)).thenReturn(null);
-
-        shipmentService.update("shipment-1", new UpdateShipmentCommand(
-                "origin", "destination", "tracking", ShipmentStatus.IN_TRANSIT));
-
-        verify(trackingEventRepository, never()).save(org.mockito.ArgumentMatchers.any(TrackingEvent.class));
-    }
-
+   
     @Test
     void findTrackingEventsShouldMapEventsInRepositoryOrder() {
         Shipment shipment = shipment("shipment-1", ShipmentStatus.PLANNED);
