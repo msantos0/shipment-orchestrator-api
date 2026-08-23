@@ -25,6 +25,7 @@ A URI do MongoDB pode ser alterada pela variavel de ambiente `MONGODB_URI`. O va
 - `POST /api/v1/shipments`: cria uma remessa com `origin`, `destination` e `trackingCode`.
 - `GET /api/v1/shipments`: lista as remessas com `page`, `size`, `status` e `trackingCode` opcionais.
 - `GET /api/v1/shipments/{id}`: consulta uma remessa pelo ID.
+- `GET /api/v1/shipments/{id}/tracking-events`: consulta o histórico cronológico de eventos da remessa.
 - `PUT /api/v1/shipments/{id}`: atualiza uma remessa.
 - `DELETE /api/v1/shipments/{id}`: remove uma remessa.
 - `GET /swagger-ui.html`: abre a documentacao interativa da API.
@@ -59,12 +60,19 @@ src/main/java/com/shipmentorchestrator/api
 	|-- domain
 	|   |-- Shipment.java
 	|   |-- ShipmentRepository.java
-	|   `-- ShipmentStatus.java
+		|   |-- ShipmentStatus.java
+		|   |-- TrackingEvent.java
+		|   |-- TrackingEventRepository.java
+		|   `-- TrackingEventType.java
 	`-- infrastructure
 		|-- ShipmentDocument.java
 		|-- ShipmentMongoRepository.java
 		|-- ShipmentPersistenceMapper.java
-		`-- ShipmentRepositoryAdapter.java
+			|-- ShipmentRepositoryAdapter.java
+			|-- TrackingEventDocument.java
+			|-- TrackingEventMongoRepository.java
+			|-- TrackingEventPersistenceMapper.java
+			`-- TrackingEventRepositoryAdapter.java
 src/main/resources/application.yml
 src/test/java/com/shipmentorchestrator/api
 `-- ShipmentOrchestratorApiApplicationTests.java

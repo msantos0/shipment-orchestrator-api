@@ -1,6 +1,6 @@
 package com.shipmentorchestrator.api.shipment.domain;
 
-public enum ShipmentStatus {
+public enum TrackingEventType {
     PLANNED,
     PICKED_UP,
     IN_TRANSIT,
