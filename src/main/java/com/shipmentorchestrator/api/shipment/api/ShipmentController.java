@@ -1,5 +1,7 @@
 package com.shipmentorchestrator.api.shipment.api;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +65,14 @@ public class ShipmentController {
     @Operation(summary = "Find a shipment by id")
     public ShipmentResponse findById(@PathVariable String id) {
         return ShipmentResponse.from(shipmentService.findById(id));
+    }
+
+    @GetMapping("/{id}/tracking-events")
+    @Operation(summary = "List shipment tracking events")
+    public List<TrackingEventResponse> findTrackingEvents(@PathVariable String id) {
+        return shipmentService.findTrackingEvents(id).stream()
+                .map(TrackingEventResponse::from)
+                .toList();
     }
 
     @PutMapping("/{id}")
