@@ -30,10 +30,52 @@ public class Shipment {
                 .build();
     }
 
-    public void update(String origin, String destination, String trackingCode, ShipmentStatus status) {
+    public void update(String origin, String destination, String trackingCode) {
         this.origin = origin;
         this.destination = destination;
         this.trackingCode = trackingCode;
-        this.status = status;
+    }
+
+    public void plan() {
+        transitionTo(ShipmentStatus.PLANNED);
+    }
+
+    public void pickup() {
+        transitionTo(ShipmentStatus.PICKED_UP);
+    }
+
+    public void startTransit() {
+        transitionTo(ShipmentStatus.IN_TRANSIT);
+    }
+
+    public void deliver() {
+        transitionTo(ShipmentStatus.DELIVERED);
+    }
+
+    public void cancel() {
+        transitionTo(ShipmentStatus.CANCELLED);
+    }
+
+    private void transitionTo(ShipmentStatus targetStatus) {
+        if (!isTransitionAllowed(targetStatus)) {
+            throw new BusinessException(
+                    "Invalid shipment transition from " + status + " to " + targetStatus);
+        }
+        status = targetStatus;
+    }
+
+    private boolean isTransitionAllowed(ShipmentStatus targetStatus) {
+        if (status == null) {
+            return false;
+        }
+        return switch (status) {
+            case CREATED -> targetStatus == ShipmentStatus.PLANNED
+                    || targetStatus == ShipmentStatus.CANCELLED;
+            case PLANNED -> targetStatus == ShipmentStatus.PICKED_UP
+                    || targetStatus == ShipmentStatus.CANCELLED;
+            case PICKED_UP -> targetStatus == ShipmentStatus.IN_TRANSIT;
+            case IN_TRANSIT -> targetStatus == ShipmentStatus.DELIVERED;
+            case DELIVERED, CANCELLED -> false;
+        };
     }
 }
