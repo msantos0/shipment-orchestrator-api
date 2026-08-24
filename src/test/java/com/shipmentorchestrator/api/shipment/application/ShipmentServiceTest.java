@@ -1,6 +1,8 @@
 package com.shipmentorchestrator.api.shipment.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.shipmentorchestrator.api.shipment.domain.Shipment;
+import com.shipmentorchestrator.api.shipment.domain.ShipmentEvent;
+import com.shipmentorchestrator.api.shipment.domain.ShipmentEventPublisher;
 import com.shipmentorchestrator.api.shipment.domain.ShipmentRepository;
 import com.shipmentorchestrator.api.shipment.domain.ShipmentStatus;
 import com.shipmentorchestrator.api.shipment.domain.TrackingEvent;
@@ -38,6 +42,9 @@ class ShipmentServiceTest {
     @Mock
     private TrackingEventMapper trackingEventMapper;
 
+        @Mock
+        private ShipmentEventPublisher shipmentEventPublisher;
+
     @InjectMocks
     private ShipmentService shipmentService;
 
@@ -45,6 +52,8 @@ class ShipmentServiceTest {
     void createShouldRegisterPlannedEvent() {
         Shipment savedShipment = shipment("shipment-1", ShipmentStatus.PLANNED);
         when(shipmentRepository.save(org.mockito.ArgumentMatchers.any(Shipment.class))).thenReturn(savedShipment);
+        when(trackingEventRepository.save(any(TrackingEvent.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         ShipmentOutput output = new ShipmentOutput(
                 "shipment-1", "origin", "destination", "tracking", ShipmentStatus.PLANNED, Instant.now());
         when(shipmentMapper.toOutput(savedShipment)).thenReturn(output);
@@ -56,35 +65,56 @@ class ShipmentServiceTest {
         verify(trackingEventRepository).save(argThat(event ->
                 event.getShipmentId().equals("shipment-1")
                         && event.getEventType() == TrackingEventType.PLANNED));
+        verify(shipmentEventPublisher).publish(argThat(event ->
+                event.shipmentId().equals("shipment-1")
+                        && event.status() == ShipmentStatus.PLANNED));
     }
 
     @Test
-    void updateShouldRegisterEventWhenStatusChanges() {
+    void transitionShouldPublishShipmentEventAfterRegisteringTrackingEvent() {
         Shipment shipment = shipment("shipment-1", ShipmentStatus.PLANNED);
         when(shipmentRepository.findById("shipment-1")).thenReturn(Optional.of(shipment));
         when(shipmentRepository.save(shipment)).thenReturn(shipment);
+        when(trackingEventRepository.save(any(TrackingEvent.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(shipmentMapper.toOutput(shipment)).thenReturn(null);
 
-        shipmentService.update("shipment-1", new UpdateShipmentCommand(
-                "origin", "destination", "tracking", ShipmentStatus.IN_TRANSIT));
+        shipmentService.pickup("shipment-1");
 
         verify(trackingEventRepository).save(argThat(event ->
                 event.getShipmentId().equals("shipment-1")
-                        && event.getEventType() == TrackingEventType.IN_TRANSIT));
+                        && event.getEventType() == TrackingEventType.PICKED_UP));
+        verify(shipmentEventPublisher).publish(argThat(event ->
+                event.shipmentId().equals("shipment-1")
+                        && event.status() == ShipmentStatus.PICKED_UP));
     }
 
     @Test
-    void updateShouldNotRegisterEventWhenStatusDoesNotChange() {
+    void updateShouldNotRegisterOrPublishEvent() {
         Shipment shipment = shipment("shipment-1", ShipmentStatus.IN_TRANSIT);
         when(shipmentRepository.findById("shipment-1")).thenReturn(Optional.of(shipment));
         when(shipmentRepository.save(shipment)).thenReturn(shipment);
         when(shipmentMapper.toOutput(shipment)).thenReturn(null);
 
         shipmentService.update("shipment-1", new UpdateShipmentCommand(
-                "origin", "destination", "tracking", ShipmentStatus.IN_TRANSIT));
+                "origin", "destination", "tracking"));
 
         verify(trackingEventRepository, never()).save(org.mockito.ArgumentMatchers.any(TrackingEvent.class));
+        verify(shipmentEventPublisher, never()).publish(any(ShipmentEvent.class));
     }
+
+        @Test
+        void invalidTransitionShouldNotRegisterOrPublishEvent() {
+                Shipment shipment = shipment("shipment-1", ShipmentStatus.DELIVERED);
+                when(shipmentRepository.findById("shipment-1")).thenReturn(Optional.of(shipment));
+
+                assertThatThrownBy(() -> shipmentService.deliver("shipment-1"))
+                                .isInstanceOf(RuntimeException.class);
+
+                verify(shipmentRepository, never()).save(any(Shipment.class));
+                verify(trackingEventRepository, never()).save(any(TrackingEvent.class));
+                verify(shipmentEventPublisher, never()).publish(any(ShipmentEvent.class));
+        }
 
     @Test
     void findTrackingEventsShouldMapEventsInRepositoryOrder() {

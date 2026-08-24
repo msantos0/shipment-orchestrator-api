@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import com.shipmentorchestrator.api.shipment.domain.Shipment;
+import com.shipmentorchestrator.api.shipment.domain.ShipmentEvent;
+import com.shipmentorchestrator.api.shipment.domain.ShipmentEventPublisher;
 import com.shipmentorchestrator.api.shipment.domain.ShipmentRepository;
 import com.shipmentorchestrator.api.shipment.domain.ShipmentStatus;
 import com.shipmentorchestrator.api.shipment.domain.TrackingEvent;
@@ -22,12 +24,13 @@ public class ShipmentService {
     private final ShipmentMapper shipmentMapper;
     private final TrackingEventRepository trackingEventRepository;
     private final TrackingEventMapper trackingEventMapper;
+    private final ShipmentEventPublisher shipmentEventPublisher;
 
     public ShipmentOutput create(CreateShipmentCommand command) {
         Shipment shipment = Shipment.create(command.origin(), command.destination(), command.trackingCode());
         Shipment savedShipment = shipmentRepository.save(shipment);
-        trackingEventRepository.save(TrackingEvent.create(
-            savedShipment.getId(), savedShipment.getStatus(), null, null));
+        publishEvent(trackingEventRepository.save(TrackingEvent.create(
+            savedShipment.getId(), savedShipment.getStatus(), null, null)));
         return shipmentMapper.toOutput(savedShipment);
     }
 
@@ -79,15 +82,22 @@ private ShipmentOutput transition(
 
     Shipment savedShipment = shipmentRepository.save(shipment);
 
-    trackingEventRepository.save(
+        publishEvent(trackingEventRepository.save(
             TrackingEvent.create(
-                    savedShipment.getId(),
-                    savedShipment.getStatus(),
-                    null,
-                    null));
+                savedShipment.getId(),
+                savedShipment.getStatus(),
+                null,
+                null)));
 
     return shipmentMapper.toOutput(savedShipment);
 }
+
+        private void publishEvent(TrackingEvent trackingEvent) {
+        shipmentEventPublisher.publish(new ShipmentEvent(
+            trackingEvent.getShipmentId(),
+            ShipmentStatus.valueOf(trackingEvent.getEventType().name()),
+            trackingEvent.getEventDate()));
+        }
 
     public void delete(String id) {
         shipmentRepository.findById(id)
