@@ -69,8 +69,7 @@ public class Shipment {
             return false;
         }
         return switch (status) {
-            case CREATED -> targetStatus == ShipmentStatus.PLANNED
-                    || targetStatus == ShipmentStatus.CANCELLED;
+            case CREATED -> targetStatus == ShipmentStatus.PLANNED;
             case PLANNED -> targetStatus == ShipmentStatus.PICKED_UP
                     || targetStatus == ShipmentStatus.CANCELLED;
             case PICKED_UP -> targetStatus == ShipmentStatus.IN_TRANSIT;
