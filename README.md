@@ -7,6 +7,7 @@ API base para orquestracao de remessas e operacoes logisticas, construida com Sp
 - JDK 21
 - Maven 3.9+
 - MongoDB 7+
+- Docker com Docker Compose
 
 ## Executar
 
@@ -17,6 +18,29 @@ mvn spring-boot:run
 A aplicacao inicia em `http://localhost:8080`.
 
 A URI do MongoDB pode ser alterada pela variavel de ambiente `MONGODB_URI`. O valor padrao e `mongodb://localhost:27017/shipment_orchestrator`.
+
+## Ambiente local completo
+
+```bash
+docker compose up -d
+mvn spring-boot:run
+```
+
+O compose inicia MongoDB em `localhost:27017`, Kafka em `localhost:9092` e Kafka UI em `http://localhost:8081`.
+
+O topico padrao e `shipment-events`. O publisher Kafka e usado por padrao. Para usar o fallback de log, inicie a aplicacao com `SHIPMENT_KAFKA_PUBLISHER=log`.
+
+Falhas de publicacao no Kafka sao registradas pela aplicacao e nao impedem a persistencia da shipment ou do tracking event.
+
+O payload publicado possui o formato:
+
+```json
+{
+	"shipmentId": "string",
+	"eventType": "CREATED",
+	"occurredAt": "2026-08-24T15:00:00Z"
+}
+```
 
 ## Endpoints iniciais
 

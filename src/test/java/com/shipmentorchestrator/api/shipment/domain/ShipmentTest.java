@@ -8,6 +8,11 @@ import org.junit.jupiter.api.Test;
 class ShipmentTest {
 
     @Test
+    void shouldStartAsCreated() {
+        assertEquals(ShipmentStatus.CREATED, shipment().getStatus());
+    }
+
+    @Test
     void shouldFollowTheCompleteShipmentFlow() {
         Shipment shipment = shipment();
 
@@ -28,9 +33,7 @@ class ShipmentTest {
     void shouldCancelCreatedShipment() {
         Shipment shipment = shipment();
 
-        shipment.cancel();
-
-        assertEquals(ShipmentStatus.CANCELLED, shipment.getStatus());
+        assertThrows(BusinessException.class, shipment::cancel);
     }
 
     @Test
@@ -80,6 +83,7 @@ class ShipmentTest {
         assertInvalidTransition(delivered, Shipment::cancel);
 
         Shipment cancelled = shipment();
+        cancelled.plan();
         cancelled.cancel();
         assertInvalidTransition(cancelled, Shipment::plan);
         assertInvalidTransition(cancelled, Shipment::cancel);

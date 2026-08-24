@@ -49,13 +49,13 @@ class ShipmentServiceTest {
     private ShipmentService shipmentService;
 
     @Test
-    void createShouldRegisterPlannedEvent() {
-        Shipment savedShipment = shipment("shipment-1", ShipmentStatus.PLANNED);
+        void createShouldRegisterCreatedEvent() {
+                Shipment savedShipment = shipment("shipment-1", ShipmentStatus.CREATED);
         when(shipmentRepository.save(org.mockito.ArgumentMatchers.any(Shipment.class))).thenReturn(savedShipment);
         when(trackingEventRepository.save(any(TrackingEvent.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         ShipmentOutput output = new ShipmentOutput(
-                "shipment-1", "origin", "destination", "tracking", ShipmentStatus.PLANNED, Instant.now());
+                "shipment-1", "origin", "destination", "tracking", ShipmentStatus.CREATED, Instant.now());
         when(shipmentMapper.toOutput(savedShipment)).thenReturn(output);
 
         ShipmentOutput result = shipmentService.create(
@@ -64,10 +64,10 @@ class ShipmentServiceTest {
         assertThat(result).isEqualTo(output);
         verify(trackingEventRepository).save(argThat(event ->
                 event.getShipmentId().equals("shipment-1")
-                        && event.getEventType() == TrackingEventType.PLANNED));
+                        && event.getEventType() == TrackingEventType.CREATED));
         verify(shipmentEventPublisher).publish(argThat(event ->
                 event.shipmentId().equals("shipment-1")
-                        && event.status() == ShipmentStatus.PLANNED));
+                        && event.status() == ShipmentStatus.CREATED));
     }
 
     @Test
