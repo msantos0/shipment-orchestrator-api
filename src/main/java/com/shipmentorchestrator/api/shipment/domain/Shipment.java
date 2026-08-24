@@ -25,7 +25,7 @@ public class Shipment {
                 .origin(origin)
                 .destination(destination)
                 .trackingCode(trackingCode)
-                .status(ShipmentStatus.PLANNED)
+                .status(ShipmentStatus.CREATED)
                 .createdAt(Instant.now())
                 .build();
     }
