@@ -53,6 +53,10 @@ O payload publicado possui o formato:
 - `PUT /api/v1/shipments/{id}`: atualiza uma remessa.
 - `DELETE /api/v1/shipments/{id}`: remove uma remessa.
 - `POST /api/v1/carriers`: cria uma transportadora com `name` e `cnpj`.
+- `GET /api/v1/carriers`: lista transportadoras com filtros e paginação.
+- `GET /api/v1/carriers/{id}`: consulta uma transportadora pelo ID.
+- `PUT /api/v1/carriers/{id}`: atualiza `name` e `active`.
+- `DELETE /api/v1/carriers/{id}`: desativa a transportadora via soft delete.
 - `GET /swagger-ui.html`: abre a documentacao interativa da API.
 
 ## Testar

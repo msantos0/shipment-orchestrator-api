@@ -67,6 +67,27 @@ class CarrierServiceTest {
     }
 
     @Test
+    void findByIdShouldMapCarrier() {
+        Carrier carrier = carrier("carrier-1", "Carrier", true);
+        CarrierOutput output = output(carrier);
+        when(carrierRepository.findById("carrier-1")).thenReturn(Optional.of(carrier));
+        when(carrierMapper.toOutput(carrier)).thenReturn(output);
+
+        CarrierOutput result = carrierService.findById("carrier-1");
+
+        assertThat(result).isEqualTo(output);
+    }
+
+    @Test
+    void findByIdShouldThrowWhenCarrierDoesNotExist() {
+        when(carrierRepository.findById("missing")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> carrierService.findById("missing"))
+                .isInstanceOf(CarrierNotFoundException.class)
+                .hasMessage("Carrier not found: missing");
+    }
+
+    @Test
     void updateShouldSaveNameAndActiveStatus() {
         Carrier carrier = carrier("carrier-1", "Carrier", true);
         CarrierOutput output = output(carrier);

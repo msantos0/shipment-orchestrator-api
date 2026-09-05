@@ -26,6 +26,13 @@ public class CarrierService {
         return carrierMapper.toOutput(savedCarrier);
     }
 
+    public CarrierOutput findById(String id) {
+        Carrier carrier = carrierRepository.findById(id)
+                .orElseThrow(() -> new CarrierNotFoundException(id));
+        LOGGER.info("Carrier retrieved: {}", id);
+        return carrierMapper.toOutput(carrier);
+    }
+
     public CarrierOutput update(String id, UpdateCarrierCommand command) {
         Carrier carrier = carrierRepository.findById(id)
                 .orElseThrow(() -> new CarrierNotFoundException(id));

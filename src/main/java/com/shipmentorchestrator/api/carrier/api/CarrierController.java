@@ -43,6 +43,12 @@ public class CarrierController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Find a carrier by id", description = "Returns a carrier by its identifier")
+    public CarrierResponse findById(@PathVariable String id) {
+        return CarrierResponse.from(carrierService.findById(id));
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update a carrier", description = "Updates a carrier name and active status")
     public CarrierResponse update(

@@ -18,3 +18,8 @@ export interface CreateCarrierPayload {
   name: string
   cnpj: string
 }
+
+export interface UpdateCarrierPayload {
+  name: string
+  active: boolean
+}
