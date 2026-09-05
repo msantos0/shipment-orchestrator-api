@@ -62,6 +62,28 @@ class CarrierControllerTest {
     }
 
     @Test
+    void findByIdShouldReturnCarrier() throws Exception {
+        when(carrierService.findById("carrier-1")).thenReturn(new CarrierOutput(
+                "carrier-1", "Carrier", "12345678000199", true, Instant.parse("2026-01-01T00:00:00Z")));
+
+        mockMvc.perform(get("/api/v1/carriers/carrier-1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("carrier-1"))
+                .andExpect(jsonPath("$.name").value("Carrier"))
+                .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    void findByIdShouldReturnNotFoundWhenCarrierDoesNotExist() throws Exception {
+        when(carrierService.findById("missing"))
+                .thenThrow(new com.shipmentorchestrator.api.carrier.application.CarrierNotFoundException("missing"));
+
+        mockMvc.perform(get("/api/v1/carriers/missing"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Carrier not found: missing"));
+    }
+
+    @Test
     void findAllShouldReturnPaginatedCarriers() throws Exception {
         CarrierOutput output = new CarrierOutput(
                 "carrier-1", "Carrier", "12345678000199", true, Instant.parse("2026-01-01T00:00:00Z"));
