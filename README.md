@@ -52,6 +52,7 @@ O payload publicado possui o formato:
 - `GET /api/v1/shipments/{id}/tracking-events`: consulta o histórico cronológico de eventos da remessa.
 - `PUT /api/v1/shipments/{id}`: atualiza uma remessa.
 - `DELETE /api/v1/shipments/{id}`: remove uma remessa.
+- `POST /api/v1/carriers`: cria uma transportadora com `name` e `cnpj`.
 - `GET /swagger-ui.html`: abre a documentacao interativa da API.
 
 ## Testar
@@ -97,9 +98,30 @@ src/main/java/com/shipmentorchestrator/api
 			|-- TrackingEventMongoRepository.java
 			|-- TrackingEventPersistenceMapper.java
 			`-- TrackingEventRepositoryAdapter.java
+|-- carrier
+	|-- api
+	|   |-- CarrierController.java
+	|   |-- CarrierResponse.java
+	|   `-- CreateCarrierRequest.java
+	|-- application
+	|   |-- CarrierMapper.java
+	|   |-- CarrierOutput.java
+	|   |-- CarrierService.java
+	|   `-- CreateCarrierCommand.java
+	|-- domain
+	|   |-- Carrier.java
+	|   `-- CarrierRepository.java
+	`-- infrastructure
+	    |-- CarrierDocument.java
+	    |-- CarrierMongoRepository.java
+	    |-- CarrierPersistenceMapper.java
+	    `-- CarrierRepositoryAdapter.java
 src/main/resources/application.yml
 src/test/java/com/shipmentorchestrator/api
-`-- ShipmentOrchestratorApiApplicationTests.java
+|-- ShipmentOrchestratorApiApplicationTests.java
+`-- carrier
+	|-- application/CarrierServiceTest.java
+	`-- domain/CarrierTest.java
 ```
 
 O dominio nao depende de MongoDB. A infraestrutura concentra o documento Mongo,
