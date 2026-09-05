@@ -1,0 +1,6 @@
+import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import type { Carrier } from '../models/carrier'
+
+export function CarrierTable({ carriers }: { carriers: Carrier[] }) {
+  return <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #d9e2ec', borderRadius: 2, overflow: 'hidden' }}><Table><TableHead><TableRow sx={{ bgcolor: '#f7fafc' }}><TableCell sx={{ color: '#627d98', fontWeight: 700 }}>Carrier</TableCell><TableCell sx={{ color: '#627d98', fontWeight: 700 }}>CNPJ</TableCell><TableCell sx={{ color: '#627d98', fontWeight: 700 }}>Created</TableCell><TableCell sx={{ color: '#627d98', fontWeight: 700 }}>Status</TableCell></TableRow></TableHead><TableBody>{carriers.map((carrier) => <TableRow key={carrier.id} hover><TableCell><Typography sx={{ fontWeight: 600 }}>{carrier.name}</Typography><Typography variant="caption" color="text.secondary">{carrier.id}</Typography></TableCell><TableCell>{carrier.cnpj}</TableCell><TableCell>{new Date(carrier.createdAt).toLocaleDateString('pt-BR')}</TableCell><TableCell><Chip label={carrier.active ? 'Active' : 'Inactive'} size="small" sx={{ fontWeight: 600, color: carrier.active ? '#276749' : '#718096', bgcolor: carrier.active ? '#c6f6d5' : '#edf2f7' }} /></TableCell></TableRow>)}</TableBody></Table></TableContainer>
+}
