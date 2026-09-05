@@ -28,4 +28,13 @@ public class Carrier {
                 .build();
     }
 
+    public void update(String name, boolean active) {
+        this.name = name;
+        this.active = active;
+    }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
 }

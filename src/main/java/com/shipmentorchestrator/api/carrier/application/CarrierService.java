@@ -1,5 +1,7 @@
 package com.shipmentorchestrator.api.carrier.application;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,5 +24,27 @@ public class CarrierService {
         Carrier savedCarrier = carrierRepository.save(Carrier.create(command.name(), command.cnpj()));
         LOGGER.info("Carrier created: {}", savedCarrier.getId());
         return carrierMapper.toOutput(savedCarrier);
+    }
+
+    public CarrierOutput update(String id, UpdateCarrierCommand command) {
+        Carrier carrier = carrierRepository.findById(id)
+                .orElseThrow(() -> new CarrierNotFoundException(id));
+        carrier.update(command.name(), command.active());
+        Carrier savedCarrier = carrierRepository.save(carrier);
+        LOGGER.info("Carrier updated: {}", savedCarrier.getId());
+        return carrierMapper.toOutput(savedCarrier);
+    }
+
+    public void delete(String id) {
+        Carrier carrier = carrierRepository.findById(id)
+                .orElseThrow(() -> new CarrierNotFoundException(id));
+        carrier.deactivate();
+        carrierRepository.save(carrier);
+        LOGGER.info("Carrier deactivated: {}", id);
+    }
+
+    public Page<CarrierOutput> findAll(String name, Boolean active, Pageable pageable) {
+        return carrierRepository.findAll(name, active, pageable)
+                .map(carrierMapper::toOutput);
     }
 }
