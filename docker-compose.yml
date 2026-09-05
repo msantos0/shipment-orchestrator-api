@@ -1,4 +1,5 @@
 services:
+
   mongodb:
     image: mongo:7
     container_name: shipment-orchestrator-mongodb
@@ -40,6 +41,24 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shipment-orchestrator-api
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/shipment_orchestrator
+      SHIPMENT_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SHIPMENT_KAFKA_TOPIC: shipment-events
+      SHIPMENT_KAFKA_PUBLISHER: kafka
 
 volumes:
   mongodb_data:
